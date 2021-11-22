@@ -2,13 +2,13 @@ Voice application plugin that converts text into natural-sounding speech using a
 
 ## Installation
 
-```bash
+```cli
 npm install @fonoster/pollytts
 ```
 
 or
 
-```bash
+```cli
 yarn add @fonoster/pollytts
 ```
 
