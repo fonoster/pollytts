@@ -5,8 +5,8 @@
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/pollytts#readme",
   "license": "MIT",
-  "main": "dist/tts",
-  "types": "dist/tts",
+  "main": "dist/src/tts",
+  "types": "dist/src/tts",
   "scripts": {
     "prebuild": "rimraf ./dist tsconfig.tsbuildinfo",
     "test": "cross-env NODE_ENV=dev nyc --reporter=lcov mocha -r ts-node/register **/*.unit.test.ts --exit",
