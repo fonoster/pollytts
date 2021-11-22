@@ -23,8 +23,17 @@ import {Plugin} from "@fonoster/common";
 import {TTSPlugin, computeFilename, SynthResult} from "@fonoster/tts";
 import logger from "@fonoster/logger";
 import {PollyTTSConfig, SynthOptions} from "./types";
+import {LanguageCode, TextType, Voice, Engine, Region} from "./enums";
+import { assertFileExist, assertFileIsWellForm } from "./assertions";
 
-const defaultVoice = {voiceId: "Nicole"};
+const defaultVoice = {
+  voice: Voice.Vitoria,
+  textType: TextType.Text,
+  engine: Engine.Standard,
+  languageCode: LanguageCode.en_US 
+};
+
+
 
 /**
  * @classdesc Optional TTS engine for Fonoster.
@@ -40,7 +49,7 @@ const defaultVoice = {voiceId: "Nicole"};
 class PollyTTS extends Plugin implements TTSPlugin {
   config: PollyTTSConfig;
   /**
-   * Constructs a new GoogleTTS object.
+   * Constructs a new PollyTTS object.
    *
    * @see module:tts:AbstractTTS
    */
@@ -48,6 +57,17 @@ class PollyTTS extends Plugin implements TTSPlugin {
     super("tts", "pollytts");
     this.config = config;
     this.config.path = config.path ? config.path : "/tmp";
+    this.config.region = config.region ? config.region : Region.us_east_1;
+    if (config.keyFilename) {
+      assertFileExist(config.keyFilename);
+      assertFileIsWellForm(config.keyFilename);
+      const credentials = require(config.keyFilename)
+      this.config.accessKeyId = credentials.accessKeyId;
+      this.config.secretAccessKey = credentials.secretAccessKey;
+    } else {
+      this.config.accessKeyId = config.accessKeyId;
+      this.config.secretAccessKey = config.secretAccessKey;
+    }
   }
 
   /**
@@ -58,9 +78,6 @@ class PollyTTS extends Plugin implements TTSPlugin {
     options: SynthOptions = {}
   ): Promise<SynthResult> {
     const client = new AWS.Polly(this.config as any);
-    // TODO: The file extension should be set based on the sample rate
-    // For example, if we set the sample rate to 16K, then the extension needs to be
-    // snl16, for 8K => sln, etc...
     const filename = computeFilename(text, options, "sln16");
     const pathToFile = path.join(this.config.path, filename);
 
@@ -74,7 +91,10 @@ class PollyTTS extends Plugin implements TTSPlugin {
     const voice = merge(defaultVoice, options || {});
 
     const request = {
-      VoiceId: voice.voiceId,
+      VoiceId: voice.voice,
+      Engine: voice.engine,
+      TextType: voice.textType,
+      LanguageCode: voice.languageCode,
       Text: text,
       OutputFormat: "pcm",
       SampleRate: "16000"
@@ -87,6 +107,11 @@ class PollyTTS extends Plugin implements TTSPlugin {
 }
 
 export default PollyTTS;
+export { Voice, LanguageCode, TextType, Engine}
 
 // WARNING: Workaround to support commonjs clients
 module.exports = PollyTTS;
+module.exports.Voice = Voice;
+module.exports.LanguageCode = LanguageCode;
+module.exports.TextType = TextType;
+module.exports.Engine = Engine;

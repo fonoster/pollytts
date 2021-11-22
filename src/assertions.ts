@@ -16,18 +16,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export interface PollyTTSConfig {
-  region?: string;
-  keyFilename?: string;
-  accessKeyId?: string;
-  secretAccessKey?: string;
-  // Location of resulting sound
-  path?: string;
-}
+import fs from "fs";
 
-export interface SynthOptions {
-  voice?: string;
-  languageCode?: string;
-  engine?: string;
-  textType?: string;
-}
+// TODO: Move to @fonoster/common
+export const assertFileExist = (file: string): void => {
+  if (!fs.existsSync(file))
+    throw new Error(
+      `the file '${file}' does not exist`
+    );
+};
+
+export const assertFileIsWellForm = (file: string): void => {
+  try {
+    require(file);
+  } catch (e) {
+    throw new Error(
+      `the file '${file}' is malformed`
+    ); 
+  }
+};
