@@ -17,6 +17,7 @@
  * limitations under the License.
  */
 import fs from "fs";
+import os from "os";
 import path from "path";
 import * as AWS from "@aws-sdk/client-polly";
 import {Plugin} from "@fonoster/common";
@@ -32,8 +33,6 @@ const defaultVoice = {
   engine: Engine.Standard,
   languageCode: LanguageCode.en_US 
 };
-
-
 
 /**
  * @classdesc Optional TTS engine for Fonoster.
@@ -56,7 +55,7 @@ class PollyTTS extends Plugin implements TTSPlugin {
   constructor(config: PollyTTSConfig) {
     super("tts", "pollytts");
     this.config = config;
-    this.config.path = config.path ? config.path : "/tmp";
+    this.config.path = config.path ? config.path : os.tmpdir();
     this.config.region = config.region ? config.region : Region.us_east_1;
     if (config.keyFilename) {
       assertFileExist(config.keyFilename);
